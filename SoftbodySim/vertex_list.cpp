@@ -25,6 +25,9 @@ void vertex_list::add(vertex* newNode)
  	}
 	else
 	{
+		// In case pCur was modified by another function
+		pCur = pLast;
+
 		pCur->setNext(newNode);
 		newNode->setPrev(pCur);
 		pCur = newNode;
@@ -74,15 +77,23 @@ void vertex_list::add(int x, int y)
 		pLast = vert;
 
 		pFirst->setIndex(1);
+
+		std::cout << "Added first element: " << x << "|" << y << std::endl;
 	}
 	else
 	{
+		// In case pCur was modified by another function
+		pCur = pLast;
+
 		pCur->setNext(vert);
 		vert->setPrev(pCur);
 		pCur = vert;
 		pLast = vert;
 
 		pCur->setIndex(pCur->getPrev()->getIndex() + 1);
+
+		std::cout << "Added element: " << x << "|" << y << std::endl;
+		std::cout << "Prev element: " << vert->getPrev()->getX() << "|" << vert->getPrev()->getY() << std::endl;
 	}
 }
 
@@ -100,6 +111,9 @@ void vertex_list::add(SDL_Point p)
 	}
 	else
 	{
+		// In case pCur was modified by another function
+		pCur = pLast;
+
 		pCur->setNext(vert);
 		vert->setPrev(pCur);
 		pCur = vert;
@@ -169,6 +183,32 @@ void vertex_list::addTo(SDL_Point p, int i)
 		pCur = pCur->getNext();
 	}
 	pCur = vert;
+}
+
+void vertex_list::initBall(int x, int y, int numOfPoints, int r)
+{
+	for (int i = 1; i <= numOfPoints; i++)
+	{
+		this->add(r * sin(i * (2.0 * 3.14) / numOfPoints) + x, 
+				  r * cos(i * (2.0 * 3.14) / numOfPoints) + y);
+	}
+
+	// ...
+}
+
+void vertex_list::del(int i)
+{
+
+}
+
+void vertex_list::del(int x, int y)
+{
+
+}
+
+void vertex_list::del(SDL_Point p)
+{
+
 }
 
 void vertex_list::setCurrent(cur_pos flag)

@@ -31,17 +31,17 @@ void event_handler::process_events(vertex_list* list)
 
 void event_handler::handle_mouse(vertex_list* list)
 {
-	if (SDL_MOUSEBUTTONDOWN)
+	if (evt.type == SDL_MOUSEBUTTONDOWN)
 	{
-		
+		//list->add(evt.button.x, evt.button.y);
+	}
+	else if (evt.type == SDL_MOUSEBUTTONUP)
+	{
 
-		list->setCurrent(cur_pos::first);
-		while (list->getCurrent() != nullptr)
-		{
-			
+	}
+	else if (evt.type == SDL_MOUSEMOTION)
+	{
 
-			list->setCurrent(cur_pos::next);
-		}
 	}
 }
 

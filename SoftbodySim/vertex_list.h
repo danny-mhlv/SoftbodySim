@@ -26,6 +26,8 @@ public:
 	void addTo(int x, int y, int i);
 	void addTo(SDL_Point p, int i);
 
+	void initBall(int x, int y, int numOfPoints, int r);
+
 	// Deletion by index
 	void del(int i);
 	// Deletion by coordinates

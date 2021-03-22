@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+
 class vertex
 {
 public:
@@ -14,8 +15,8 @@ public:
 	void draw();
 
 	// Get/Set
-	int getX();
-	int getY();
+	int getX(); void setX(int x);
+	int getY(); void setY(int y);
 	SDL_Point getVert();
 
 	vertex* getPrev();

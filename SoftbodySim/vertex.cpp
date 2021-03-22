@@ -47,7 +47,9 @@ void vertex::draw()
 */
 
 int vertex::getX() { return xc; }
+void vertex::setX(int x) { xc = x; }
 int vertex::getY() { return yc; }
+void vertex::setY(int y) { yc = y; }
 
 SDL_Point vertex::getVert()
 {
