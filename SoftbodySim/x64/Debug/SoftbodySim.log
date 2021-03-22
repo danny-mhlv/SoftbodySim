@@ -1,6 +1,0 @@
-﻿  main.cpp
-  vertex_list.cpp
-E:\GitProjects\SoftbodySim\SoftbodySim\vertex_list.cpp(193,47): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-E:\GitProjects\SoftbodySim\SoftbodySim\vertex_list.cpp(192,53): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  Generating Code...
-  SoftbodySim.vcxproj -> E:\GitProjects\SoftbodySim\x64\Debug\SoftbodySim.exe
