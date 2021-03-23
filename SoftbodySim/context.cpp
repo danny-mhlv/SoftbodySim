@@ -168,7 +168,7 @@ void context::drawCircle(int x_center, int y_center, int r, SDL_Color color, sha
 	}
 }
 
-void context::render(vertex_list* list)
+void context::render(mesh* list)
 {
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderClear(renderer);
@@ -177,13 +177,20 @@ void context::render(vertex_list* list)
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	
 	// Loop through the whole list and render
-	list->setCurrent(cur_pos::first);
-	while (list->getCurrent() != nullptr)
+	list->setPCurrent(cur_pos::first);
+	list->setSCurrent(cur_pos::first);
+	while (list->getPCurrent() != nullptr)
 	{
-		drawCircle(list->getCurrent()->getX(), list->getCurrent()->getY(), 6, RED, shape_form::filled);
-		list->setCurrent(cur_pos::next);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderDrawLine(renderer, list->getSCurrent()->get_V1()->getX(), list->getSCurrent()->get_V1()->getY(), 
+							list->getSCurrent()->get_V2()->getX(), list->getSCurrent()->get_V2()->getY());
+		drawCircle(list->getPCurrent()->getX(), list->getPCurrent()->getY(), 8, RED, shape_form::filled);
+
+		list->setPCurrent(cur_pos::next);
+		list->setSCurrent(cur_pos::next);
 	}
-	list->setCurrent(cur_pos::first); // Return current to the first element
+	list->setPCurrent(cur_pos::first); // Return current to the first element
+	list->setSCurrent(cur_pos::first);
 
 	SDL_RenderPresent(renderer);
 }

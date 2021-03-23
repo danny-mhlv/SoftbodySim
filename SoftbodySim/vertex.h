@@ -5,32 +5,37 @@ class vertex
 {
 public:
 	vertex();
-	vertex(int x, int y);
+	vertex(float x, float y);
 	vertex(SDL_Point p);
 	~vertex();
 
 	void relocate(SDL_Point p);
-	void relocate(int x, int y);
+	void relocate(float x, float y);
 
 	void draw();
 
 	// Get/Set
-	int getX(); void setX(int x);
-	int getY(); void setY(int y);
+	float getX(); void setX(float x);
+	float getY(); void setY(float y);
 	SDL_Point getVert();
+
+	float getFX(); void setFX(float arg_fx);
+	float getFY(); void setFY(float arg_fy);
+
+	float getVX(); void setVX(float arg_vx);
+	float getVY(); void setVY(float arg_vy);
 
 	vertex* getPrev();
 	vertex* getNext();
-
 	void setPrev(vertex* prev);
 	void setNext(vertex* next);
 
 	int getIndex();
 	void setIndex(int i);
 private:
-	int xc, yc;
-	int vx, vy; // Velocity
-	int fx, fy; // Force accumulator
+	float xc, yc;
+	float vx, vy; // Velocity
+	float fx, fy; // Force accumulator
 
 	int index;
 	vertex* pPrev; vertex* pNext;

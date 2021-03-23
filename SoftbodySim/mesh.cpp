@@ -1,19 +1,27 @@
-#include "vertex_list.h"
+#include "mesh.h"
 
-vertex_list::vertex_list()
+mesh::mesh()
 {
 	pFirst = nullptr;
 	pCur = nullptr;
 	pLast = nullptr;
+
+	sFirst = nullptr;
+	sCur = nullptr;
+	sLast = nullptr;
 }
 
 //Destroy all nodes
-vertex_list::~vertex_list()
+mesh::~mesh()
 {
 
 }
 
-void vertex_list::add(vertex* newNode)
+		/*----------*/
+		/*|  POINT |*/
+		/*----------*/
+
+void mesh::add_p(vertex* newNode)
 {
 	if (pFirst == nullptr)
 	{
@@ -37,7 +45,7 @@ void vertex_list::add(vertex* newNode)
 	}
 }
 
-void vertex_list::addTo(vertex* newNode, int i)
+void mesh::addTo_p(vertex* newNode, int i)
 {
 	pCur = pFirst;
 
@@ -66,7 +74,7 @@ void vertex_list::addTo(vertex* newNode, int i)
 	pCur = newNode;
 }
 
-void vertex_list::add(int x, int y)
+void mesh::add_p(int x, int y)
 {
 	vertex* vert = new vertex(x, y);
 
@@ -97,7 +105,7 @@ void vertex_list::add(int x, int y)
 	}
 }
 
-void vertex_list::add(SDL_Point p)
+void mesh::add_p(SDL_Point p)
 {
 	vertex* vert = new vertex(p);
 
@@ -123,7 +131,7 @@ void vertex_list::add(SDL_Point p)
 	}
 }
 
-void vertex_list::addTo(int x, int y, int i)
+void mesh::addTo_p(int x, int y, int i)
 {
 	vertex* vert = new vertex(x, y);
 
@@ -154,7 +162,7 @@ void vertex_list::addTo(int x, int y, int i)
 	pCur = vert;
 }
 
-void vertex_list::addTo(SDL_Point p, int i)
+void mesh::addTo_p(SDL_Point p, int i)
 {
 	vertex* vert = new vertex(p);
 
@@ -185,33 +193,124 @@ void vertex_list::addTo(SDL_Point p, int i)
 	pCur = vert;
 }
 
-void vertex_list::initBall(int x, int y, int numOfPoints, int r)
+		/*----------*/
+		/*| SPRING |*/
+		/*----------*/
+
+void mesh::add_s(spring* newNode)
 {
+	if (sFirst == nullptr)
+	{
+		sFirst = newNode;
+		sCur = newNode;
+		sLast = newNode;
+	}
+	else
+	{
+		// In case pCur was modified by another function
+		sCur = sLast;
+
+		sCur->setNext(newNode);
+		newNode->setPrev(sCur);
+		sCur = newNode;
+		sLast = newNode;
+	}
+}
+
+void mesh::add_s(vertex* vert)
+{
+	if (vert != nullptr && vert->getNext() != nullptr)
+	{
+		spring* spr = new spring(vert);
+
+		if (sFirst == nullptr)
+		{
+			sFirst = spr;
+			sCur = spr;
+			sLast = spr;
+		}
+		else
+		{
+			// In case sCur was modified by another function
+			sCur = sLast;
+
+			sCur->setNext(spr);
+			spr->setPrev(sCur);
+			sCur = spr;
+			sLast = spr;
+		}
+	}
+}
+
+void mesh::add_s(vertex* vert1, vertex* vert2)
+{
+	if (vert1 != nullptr && vert2 != nullptr)
+	{
+		spring* spr = new spring(vert1, vert2);
+
+		if (sFirst == nullptr)
+		{
+			sFirst = spr;
+			sCur = spr;
+			sLast = spr;
+		}
+		else
+		{
+			// In case sCur was modified by another function
+			sCur = sLast;
+
+			sCur->setNext(spr);
+			spr->setPrev(sCur);
+			sCur = spr;
+			sLast = spr;
+		}
+	}
+}
+
+void mesh::initBall(int x, int y, int numOfPoints, int r)
+{
+	// TODO: clear all list, then init shape
+
 	for (int i = 1; i <= numOfPoints; i++)
 	{
-		this->add(r * sin(i * (2.0 * 3.14) / numOfPoints) + x, 
+		this->add_p(r * sin(i * (2.0 * 3.14) / numOfPoints) + x, 
 				  r * cos(i * (2.0 * 3.14) / numOfPoints) + y);
 	}
 
-	// ...
+	this->add_s(pFirst); // Creating and adding a spring between first two points
+	pCur = pFirst->getNext(); // pCur is at second node in the list
+
+	while (pCur != nullptr) // Iterate through all points and assign springs
+	{
+		if (pCur->getNext() == nullptr)
+		{
+			this->add_s(pCur, pFirst);
+			break;
+		}
+
+		this->add_s(pCur);
+		this->setPCurrent(cur_pos::next);
+	}
+	
+	pCur = pFirst;
 }
 
-void vertex_list::del(int i)
+void mesh::del(int i)
 {
 
 }
 
-void vertex_list::del(int x, int y)
+void mesh::del(int x, int y)
 {
 
 }
 
-void vertex_list::del(SDL_Point p)
+void mesh::del(SDL_Point p)
 {
 
 }
 
-void vertex_list::setCurrent(cur_pos flag)
+void mesh::setPCurrent(cur_pos flag)
 {
 	switch (flag)
 	{
@@ -230,7 +329,31 @@ void vertex_list::setCurrent(cur_pos flag)
 	}
 }
 
-vertex* vertex_list::getCurrent()
+vertex* mesh::getPCurrent()
 {
 	return pCur;
+}
+
+void mesh::setSCurrent(cur_pos flag)
+{
+	switch (flag)
+	{
+	case cur_pos::first:
+		sCur = sFirst;
+		break;
+	case cur_pos::next:
+		if (sCur != nullptr)
+		{
+			sCur = sCur->getNext();
+		}
+		break;
+	case cur_pos::last:
+		sCur = sLast;
+		break;
+	}
+}
+
+spring* mesh::getSCurrent()
+{
+	return sCur;
 }

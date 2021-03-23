@@ -2,7 +2,7 @@
 #include <SDL.h>
 #include <iostream>
 
-#include "vertex_list.h"
+#include "mesh.h"
 
 #define BLACK {0, 0, 0, 255}
 #define RED {255, 0, 0, 255}
@@ -27,7 +27,7 @@ public:
 
 	void drawCircle(int x_center, int y_center, int r, SDL_Color color = {0, 0, 0, 255}, shape_form form = shape_form::hollow);
 
-	void render(vertex_list* list);
+	void render(mesh* list);
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;

@@ -10,8 +10,18 @@ event_handler::~event_handler()
 
 }
 
-void event_handler::process_events(vertex_list* list)
+void event_handler::process_events(mesh* list)
 {
+	list->setPCurrent(cur_pos::first);
+	while (list->getPCurrent() != nullptr)
+	{
+		list->getPCurrent()->setFX(0);
+		list->getPCurrent()->setFY(POINT_MASS * G_CONST);
+
+		list->setPCurrent(cur_pos::next);
+	}
+	list->setPCurrent(cur_pos::first);
+
 	while (SDL_PollEvent(&evt) != 0)
 	{
 		switch (evt.type)
@@ -29,7 +39,7 @@ void event_handler::process_events(vertex_list* list)
 	}
 }
 
-void event_handler::handle_mouse(vertex_list* list)
+void event_handler::handle_mouse(mesh* list)
 {
 	if (evt.type == SDL_MOUSEBUTTONDOWN)
 	{
