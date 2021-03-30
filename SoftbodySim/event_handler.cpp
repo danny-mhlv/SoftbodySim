@@ -12,15 +12,8 @@ event_handler::~event_handler()
 
 void event_handler::process_events(mesh* list)
 {
-	list->setPCurrent(cur_pos::first);
-	while (list->getPCurrent() != nullptr)
-	{
-		list->getPCurrent()->setFX(0);
-		list->getPCurrent()->setFY(POINT_MASS * G_CONST);
-
-		list->setPCurrent(cur_pos::next);
-	}
-	list->setPCurrent(cur_pos::first);
+	list->calculateForces();
+	list->integrate();
 
 	while (SDL_PollEvent(&evt) != 0)
 	{

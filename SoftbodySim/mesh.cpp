@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "context.h"
 
 mesh::mesh()
 {
@@ -15,6 +16,142 @@ mesh::mesh()
 mesh::~mesh()
 {
 
+}
+
+void mesh::calculateForces()
+{
+	float x1, x2, y1, y2,
+		fx1, fx2, fy1, fy2,
+		vx12, vy12, r12d,
+		f, ForceVectorX, ForceVectorY,
+		volume = 0, pressure;
+
+	// Gravity Force calculation
+
+	this->setPCurrent(cur_pos::first);
+	while (this->getPCurrent() != nullptr)
+	{
+		this->getPCurrent()->setFX(0);
+		this->getPCurrent()->setFY(POINT_MASS * G_CONST);
+
+		this->setPCurrent(cur_pos::next);
+	}
+	this->setPCurrent(cur_pos::first);
+
+	// Linear Spring Force calculation
+
+	this->setSCurrent(cur_pos::first);
+	while (this->getSCurrent() != nullptr)
+	{
+		x1 = this->getSCurrent()->get_V1()->getX();
+		x2 = this->getSCurrent()->get_V2()->getX();
+		fx1 = this->getSCurrent()->get_V1()->getFX();
+		fx2 = this->getSCurrent()->get_V2()->getFX();
+
+		y1 = this->getSCurrent()->get_V1()->getY();
+		y2 = this->getSCurrent()->get_V2()->getY();
+		fy1 = this->getSCurrent()->get_V1()->getFY();
+		fy2 = this->getSCurrent()->get_V2()->getFY();
+
+		r12d = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+
+		if (r12d != 0)
+		{
+			// Get velocities of 'start' and 'end' points
+			vx12 = this->getSCurrent()->get_V1()->getVX() - this->getSCurrent()->get_V2()->getVX();
+			vy12 = this->getSCurrent()->get_V1()->getVY() - this->getSCurrent()->get_V2()->getVY();
+
+			f = (r12d - this->getSCurrent()->getLength()) * Ks + (vx12 * (x1 - x2) + vy12 * (y1 - y2)) * Kd / r12d;
+
+			ForceVectorX = ((x1 - x2) / r12d) * f;
+			ForceVectorY = ((y1 - y2) / r12d) * f;
+
+			// Accumulate force for 'start' point
+			fx1 -= ForceVectorX; this->getSCurrent()->get_V1()->setFX(fx1);
+			fy1 -= ForceVectorY; this->getSCurrent()->get_V1()->setFY(fy1);
+
+			// Accumulate force for 'end' point
+			fx2 += ForceVectorX; this->getSCurrent()->get_V2()->setFX(fx1);
+			fy2 += ForceVectorY; this->getSCurrent()->get_V2()->setFY(fy1);
+
+		}
+
+		// Normal vector calculation (for pressure)
+		this->getSCurrent()->setNX((y1 - y2) / r12d);
+		this->getSCurrent()->setNY(-(x1 - x2) / r12d);
+
+		this->setSCurrent(cur_pos::next); // Iterate
+	}
+
+	// Pressure Force
+
+	// Volume calculation (Gauss)
+	this->setSCurrent(cur_pos::first);
+	while (sCur != nullptr)
+	{
+		x1 = sCur->get_V1()->getX();
+		y1 = sCur->get_V1()->getY();
+		x2 = sCur->get_V2()->getX();
+		y2 = sCur->get_V2()->getY();
+
+		r12d = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+
+		volume += 0.5 * fabs(x1 - x2) * fabs(sCur->getNX()) * r12d;
+		
+		setSCurrent(cur_pos::next); // Iterate
+	}
+
+	// Pressure force calculation
+	this->setSCurrent(cur_pos::first);
+	while (sCur != nullptr)
+	{
+		x1 = this->getSCurrent()->get_V1()->getX();
+		x2 = this->getSCurrent()->get_V2()->getX();
+		fx1 = this->getSCurrent()->get_V1()->getFX();
+		fx2 = this->getSCurrent()->get_V2()->getFX();
+
+		y1 = this->getSCurrent()->get_V1()->getY();
+		y2 = this->getSCurrent()->get_V2()->getY();
+		fy1 = this->getSCurrent()->get_V1()->getFY();
+		fy2 = this->getSCurrent()->get_V2()->getFY();
+
+		r12d = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+
+		pressure = ((1.0f) / volume) * r12d * P_CONST;
+
+		fx1 += sCur->getNX() * pressure; sCur->get_V1()->setFX(fx1);
+		fy1 += sCur->getNY() * pressure; sCur->get_V1()->setFY(fy1);
+
+		fx2 += sCur->getNX() * pressure; sCur->get_V2()->setFX(fx2);
+		fy2 += sCur->getNY() * pressure; sCur->get_V2()->setFY(fy2);
+
+		setSCurrent(cur_pos::next); // Iterate
+	}
+}
+
+void mesh::integrate()
+{
+	float x, y, vx, vy, dry;
+
+	setPCurrent(cur_pos::first);
+	while (pCur != nullptr)
+	{
+		vx = pCur->getVX() + (pCur->getFX() / POINT_MASS) * DT; pCur->setVX(vx);
+		x = pCur->getX() + vx * DT; pCur->setX(x);
+
+		vy = pCur->getVY() + pCur->getFY() * DT; pCur->setVY(vy);
+
+		dry = vy * DT;
+
+		if (pCur->getY() + dry >= WINDOW_H)
+		{
+			dry = WINDOW_H - pCur->getY();
+			vy = -0.1 * vy; pCur->setVY(vy);
+		}
+
+		setPCurrent(cur_pos::next);
+	}
+	setPCurrent(cur_pos::first);
 }
 
 		/*----------*/

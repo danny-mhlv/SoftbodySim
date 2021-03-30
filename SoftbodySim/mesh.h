@@ -5,7 +5,11 @@
 #include "spring.h"
 
 const float POINT_MASS = 20.0f;
-const float G_CONST = 9.8f;
+const float G_CONST = 9.8f; // Gravitational constant
+const float P_CONST = 8.31f; // Gas constant
+const float DT = 0.01f;
+const float Ks = 10.0f; // Elasticity coefficient of the spring
+const float Kd = 10.0f; // Damping coefficient
 
 enum class cur_pos : int
 {
@@ -19,6 +23,13 @@ class mesh
 public:
 	mesh();
 	~mesh();
+
+	// Shape initialization
+	void initBall(int x, int y, int numOfPoints, int r);
+
+	// Movement and physics
+	void calculateForces();
+	void integrate();
 
 	/*----------*/
 	/*|  POINT |*/
@@ -40,8 +51,6 @@ public:
 	void add_s(spring* newNode); // Adds a spring to the list.
 	void add_s(vertex* vert); // Connects selected vertex and the next(pNext) one.
 	void add_s(vertex* vert1, vertex* vert2); // Sets vert1 and vert2 as v1/v2 respectively
-
-	void initBall(int x, int y, int numOfPoints, int r);
 
 	// Deletion by index
 	void del(int i);

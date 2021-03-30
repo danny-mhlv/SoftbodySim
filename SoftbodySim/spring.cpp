@@ -38,6 +38,14 @@ spring::spring(vertex* vert1, vertex* vert2)
 spring::~spring()
 {}
 
+void spring::setNX(float arg_nx) { nx = arg_nx; }
+void spring::setNY(float arg_ny) { ny = arg_ny; }
+
+float spring::getNX() { return nx; }
+float spring::getNY() { return ny; }
+
+float spring::getLength() { return length; }
+
 spring* spring::getPrev() { return sPrev; }
 spring* spring::getNext() { return sNext; }
 
